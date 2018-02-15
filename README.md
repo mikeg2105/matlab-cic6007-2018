@@ -8,3 +8,5 @@ http://rcg.group.shef.ac.uk/courses/jan2016-matlab-workshop/
 https://github.com/kdeeleymath/Sheffield_January_2016
 
 https://github.com/mikeg64/MatlabBootcamp2015
+
+https://www.sheffield.ac.uk/cics/research/software/matlab
