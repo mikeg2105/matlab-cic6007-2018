@@ -5,8 +5,7 @@ function [i,currentstate]=playrocket2themoon(state, control, const,figh)
 newstate=state;
 disp('Starting the simulation at time ');
 for i=1:control.nsteps
-    newstate=updatestate(newstate, control, const,figh);
-    
+   newstate=updatestate(newstate, control, const,figh); 
 % % % figh.h.XDataSource ='x';
 % % % figh.h.YDataSource = 'y';
 % % % figh.hm.XDataSource ='xm';

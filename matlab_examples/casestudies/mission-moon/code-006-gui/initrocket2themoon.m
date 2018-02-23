@@ -73,7 +73,6 @@ control.nsteps=400000;
 control.dt=1; %time step
 control.theta=0;
 control.box=800e6; %include moon
-control.saveinterval=100;
 
 %% 
 thetam=0;
