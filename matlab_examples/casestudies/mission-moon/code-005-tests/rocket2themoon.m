@@ -22,9 +22,10 @@ function varargout = rocket2themoon(varargin)
 
 % Edit the above text to modify the response to help rocket2themoon
 
-% Last Modified by GUIDE v2.5 22-Feb-2018 15:45:06
+% Last Modified by GUIDE v2.5 23-Feb-2018 00:52:06
 
 % Begin initialization code - DO NOT EDIT
+
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
@@ -96,6 +97,7 @@ function timestep_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of timestep as text
 %        str2double(get(hObject,'String')) returns contents of timestep as a double
 density = str2double(get(hObject, 'String'));
+handles.control.dt=str2double(get(hObject, 'String'));
 if isnan(density)
     set(hObject, 'String', 0);
     errordlg('Input must be a number','Error');
@@ -132,6 +134,7 @@ if isnan(volume)
     errordlg('Input must be a number','Error');
 end
 
+handles.control.saveinterval=str2double(get(hObject, 'String'));
 % Save the new saveinterval value
 handles.metricdata.volume = volume;
 guidata(hObject,handles)
@@ -159,11 +162,27 @@ function unitgroup_SelectionChangedFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if (hObject == handles.english)
+if (hObject == handles.earth)
+    set(handles.textvx, 'String', num2str(handles.state.vxe/1000));
+    set(handles.textvy, 'String', num2str(handles.state.vye/1000));
+    set(handles.textx, 'String', num2str(handles.state.xe/1000));
+    set(handles.texty, 'String', num2str(handles.state.ye/1000));
     set(handles.text4, 'String', 'lb/cu.in');
     set(handles.text5, 'String', 'cu.in');
     set(handles.text6, 'String', 'lb');
-else
+elseif (hObject == handles.moon)
+        set(handles.textvx, 'String', num2str(handles.state.vxm/1000));
+    set(handles.textvy, 'String', num2str(handles.state.vym/1000));
+    set(handles.textx, 'String', num2str(handles.state.xm/1000));
+    set(handles.texty, 'String', num2str(handles.state.ym/1000));
+    set(handles.text4, 'String', 'kg/cu.m');
+    set(handles.text5, 'String', 'cu.m');
+    set(handles.text6, 'String', 'kg');
+elseif (hObject == handles.rocket)
+        set(handles.textvx, 'String', num2str(handles.state.vx/1000));
+    set(handles.textvy, 'String', num2str(handles.state.vy/1000));
+    set(handles.textx, 'String', num2str(handles.state.x/1000));
+    set(handles.texty, 'String', num2str(handles.state.y/1000));
     set(handles.text4, 'String', 'kg/cu.m');
     set(handles.text5, 'String', 'cu.m');
     set(handles.text6, 'String', 'kg');
@@ -178,6 +197,10 @@ if isfield(handles, 'metricdata') && ~isreset
     return;
 end
 
+global stop_state;
+stop_state=0;
+%stop_state=0;
+%stop_state=0;
 handles.metricdata.density = 0;
 handles.metricdata.volume  = 0;
 
@@ -185,11 +208,20 @@ set(handles.timestep, 'String', handles.metricdata.density);
 set(handles.saveinterval,  'String', handles.metricdata.volume);
 set(handles.textvy, 'String', 0);
 
-set(handles.unitgroup, 'SelectedObject', handles.english);
+set(handles.unitgroup, 'SelectedObject', handles.earth);
 
 set(handles.text4, 'String', 'lb/cu.in');
 set(handles.text5, 'String', 'cu.in');
 set(handles.text6, 'String', 'lb');
+
+[state,const,control]=initrocket2themoon();
+figh=startrocketgraphics(state); %returns handle to the graphics
+
+handles.state=state;
+handles.control=control;
+%handles.control.dt=12;
+handles.const=const;
+handles.figh=figh;
 
 % Update handles structure
 guidata(handles.figure1, handles);
@@ -207,7 +239,11 @@ function pushbutton4_Load_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton4_Load (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+uiopen('mat');
+handles.control=control;
+handles.state=state;
+handles.const=const;
+guidata(hObject,handles);
 
 % --- Executes on button press in pushbutton5_InitGraphics.
 function pushbutton5_InitGraphics_Callback(hObject, eventdata, handles)
@@ -221,14 +257,30 @@ function pushbutton6_Run_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton6_Run (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+simloop(hObject,eventdata,handles);
 
 % --- Executes on button press in pushbutton7.
 function pushbutton7_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global stop_state;
 
+if stop_state
+    stop_state=0;
+    set(handles.pushbutton7, 'Value', 0);
+
+else
+    stop_state=1;
+    set(handles.pushbutton7, 'Value', 1);
+end
+
+% if stop_state
+%     stop_state=0;
+% else
+%     stop_state=1;
+% end
+guidata(hObject,handles);
 
 
 function fx_Callback(hObject, eventdata, handles)
@@ -274,3 +326,52 @@ function fy_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+
+function simloop(hObject,eventdata,handles)
+
+% handles.simdata.time = 0;
+% handles.simdata.theta = 0;
+% handles.simdata.dt = 0.1;
+% handles.simdata.radius = 1;
+global stop_state;
+
+for i=0:500000
+    
+    handles.state=updatestate(handles.state, handles.control, handles.const,handles.figh);
+    
+    %handles.stop_state = get(handles.pushbutton7, 'Value');
+    if stop_state
+        stop_state=0;
+        break;
+    end
+% % %     handles.simdata.theta=handles.simdata.theta+(2*pi)/250;
+% % %     if handles.simdata.theta>(2*pi) 
+% % %         handles.simdata.theta=0;   
+% % %     end
+% % %     handles.simdata.radius=handles.simdata.radius*exp(-handles.simdata.decay);
+% % %     handles.simdata.xp=+4*handles.simdata.radius*cos(handles.simdata.theta);
+% % %     handles.simdata.yp=+4*handles.simdata.radius*sin(handles.simdata.theta);
+% % %     set(handles.hm,'XData',handles.simdata.xp);
+% % %     set(handles.hm,'YData',handles.simdata.yp);
+% % %       
+% % %     drawnow;
+% % %     %guidata(hObject, handles);
+    guidata(hObject,handles)
+end
+%handles.simdata.radius=1.0;
+
+guidata(hObject, handles);
+
+
+% --- Executes on button press in pushbutton8savestate.
+function pushbutton8savestate_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton8savestate (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+const=handles.const;
+state=handles.state;
+control=handles.control;
+uisave({'const','control','state'},'rocket2moon.mat');
+guidata(hObject,handles);

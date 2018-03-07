@@ -1,19 +1,19 @@
-function varargout = testgui1(varargin)
-% TESTGUI1 M-file for testgui1.fig
-%      TESTGUI1, by itself, creates a new TESTGUI1 or raises the existing
+function varargout = guiex2f(varargin)
+% GUIEX2F M-file for guiex2f.fig
+%      GUIEX2F, by itself, creates a new GUIEX2F or raises the existing
 %      singleton*.
 %
-%      H = TESTGUI1 returns the handle to a new TESTGUI1 or the handle to
+%      H = GUIEX2F returns the handle to a new GUIEX2F or the handle to
 %      the existing singleton*.
 %
-%      TESTGUI1('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in TESTGUI1.M with the given input arguments.
+%      GUIEX2F('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in GUIEX2F.M with the given input arguments.
 %
-%      TESTGUI1('Property','Value',...) creates a new TESTGUI1 or raises the
+%      GUIEX2F('Property','Value',...) creates a new GUIEX2F or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
 %      applied to the GUI before testgui1_OpeningFunction gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to testgui1_OpeningFcn via varargin.
+%      stop.  All inputs are passed to guiex2f_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
@@ -22,16 +22,16 @@ function varargout = testgui1(varargin)
 
 % Copyright 2002-2003 The MathWorks, Inc.
 
-% Edit the above text to modify the response to help testgui1
+% Edit the above text to modify the response to help guiex2f
 
-% Last Modified by GUIDE v2.5 02-Feb-2006 10:14:14
+% Last Modified by GUIDE v2.5 02-Mar-2018 07:55:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @testgui1_OpeningFcn, ...
-                   'gui_OutputFcn',  @testgui1_OutputFcn, ...
+                   'gui_OpeningFcn', @guiex2f_OpeningFcn, ...
+                   'gui_OutputFcn',  @guiex2f_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -45,32 +45,32 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-% --- Executes just before testgui1 is made visible.
-function testgui1_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before guiex2f is made visible.
+function guiex2f_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to testgui1 (see VARARGIN)
+% varargin   command line arguments to guiex2f (see VARARGIN)
 
-% Choose default command line output for testgui1
+% Choose default command line output for guiex2f
 handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
 
 % This sets up the initial plot - only do when we are invisible
-% so window can get raised using testgui1.
+% so window can get raised using guiex2f.
 if strcmp(get(hObject,'Visible'),'off')
     plot(rand(5));
 end
 
-% UIWAIT makes testgui1 wait for user response (see UIRESUME)
+% UIWAIT makes guiex2f wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = testgui1_OutputFcn(hObject, eventdata, handles)
+function varargout = guiex2f_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
